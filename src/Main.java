@@ -9,6 +9,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -52,8 +53,6 @@ public class Main {
 		initialize();
 	}
 	public void reNewConslone(String s){
-		/*consloneText+=("\n"+s);
-		txtrText.setText(consloneText);*/
 		conslone.append("\n"+s);
 	}
 	/**
@@ -79,9 +78,6 @@ public class Main {
 		btnNewProfile = new JButton("New");
 		btnNewProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				for(int i=0;i<50;i++){
-					reNewConslone("test"+i);
-				}
 			}
 		});
 		
@@ -92,6 +88,7 @@ public class Main {
 		});
 		
 		pathShow = new JTextField();
+		pathShow.setEditable(false);
 		pathShow.setColumns(10);
 		
 		lblPath = new JLabel("abd.exe path");
@@ -100,11 +97,14 @@ public class Main {
 		btnBrowse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				 JFileChooser Filechoose=new JFileChooser();
+				 FileNameExtensionFilter adbexefilter = new FileNameExtensionFilter(
+					     "Android SDK adb tool(adb.exe)", "exe");
+				 Filechoose.setFileFilter(adbexefilter);
 	                int retval=Filechoose.showOpenDialog(new JFrame());
 	                if (retval == JFileChooser.APPROVE_OPTION) {
 	                    //... The user selected a file, get it, use it.
 	                    File file = Filechoose.getSelectedFile();
-	                    System.out.println(file.getPath());
+	                    pathShow.setText(file.getPath());
 	                }
 			}
 		});

@@ -20,7 +20,7 @@ import javax.swing.JTextField;
 public class Main {
 
 	private JFrame frame;
-	private JComboBox<?> comboBox;
+	private JComboBox comboBox;
 	private JLabel lblProfile;
 	private JButton btnNewProfile;
 	private JButton btnDeleteProfile;
@@ -30,6 +30,7 @@ public class Main {
 	private String consloneText;
 	private TextArea conslone;
 
+	public Variable variable;
 	/**
 	 * Launch the application.
 	 */
@@ -59,6 +60,9 @@ public class Main {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		variable=new Variable();
+		
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.LIGHT_GRAY);
 		frame.setBackground(Color.LIGHT_GRAY);
@@ -70,8 +74,20 @@ public class Main {
 		conslone.setEditable(false);
 		consloneText="";
 		conslone.setText(consloneText);
+		conslone.append("WellCome to Android Wireless Debug Helper 1.0"
+				+ "\nMade by EXL Workshop Michael Liu."
+				+ "\n"+"##### ### ### ###   "
+				+ "\n"+" #  #  #   #   #    "
+				+ "\n"+" #      # #    #    "
+				+ "\n"+" ###     #     #    "
+				+ "\n"+" #      # #    #    "
+				+ "\n"+" #  #  #   #   #  # "
+				+ "\n"+"##### ### ### ##### ");
 		
 		comboBox = new JComboBox();
+		if (variable.dtats.size()==0) {
+			ProfileDtats profileDtats=new ProfileDtats("Default");
+		}
 		
 		lblProfile = new JLabel("Profile.");
 		

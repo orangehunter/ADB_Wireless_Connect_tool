@@ -151,7 +151,7 @@ public class WriteFile {
         //WriteFile wf = new WriteFile();
         //wf.mkDir("./test/===/222");
 
-        System.out.println(WriteFile.exists("./bb.txt"));
+        //System.out.println(WriteFile.exists("./bb.txt"));
 
     }
 

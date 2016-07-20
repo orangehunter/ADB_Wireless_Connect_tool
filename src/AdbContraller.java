@@ -1,7 +1,4 @@
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
 
 import org.magiclen.magiccommand.Command;
 import org.magiclen.magiccommand.CommandListener;
@@ -19,9 +16,7 @@ public class AdbContraller {
 		int start=line.indexOf("model:");
 		start+=6;
 		int i=0;
-
 		while(true){
-
 			if (line.substring(start+i, start+i+1).equals(" ")) {
 				break;
 			}else {
@@ -40,15 +35,14 @@ public class AdbContraller {
 		}
 		
 		if (item.isConnectWithWifi) {
-			for(int k=0;k<5;k++){
-				if (line.substring(k, k+1).equals(":")) {
+			for(int k=0;k<line.length();k++){
+				if (line.substring(k, k+1).equals(" ")) {
 					break;
 				}else {
 					item.ip+=line.substring(k, k+1);
 				}
 			}
 		}
-		
 		Main.variable.deviceItems.add(item);
 	}
 	
@@ -79,15 +73,31 @@ public class AdbContraller {
 			@Override
 			public void commandEnd(String arg0, int arg1) {
 				// TODO Auto-generated method stub
-				if (returnLines.size()>3) {
+				if (returnLines.size()>2) {
+					Main.variable.cleanDeviceItem();//清除裝置資料
+					Main.comboBox.removeAllItems();
 					for(int i=1;i<returnLines.size()-1;i++){
-					analysisDevice(returnLines.get(1));
+					analysisDevice(returnLines.get(i));
 					}
+					for (int i = 0; i < Main.variable.deviceItems.size(); i++) {
+						DeviceItem deviceItem=Main.variable.deviceItems.get(i);
+						String isWifi,ip;
+						if (deviceItem.isConnectWithWifi) {
+							isWifi="(Wifi Mode)";
+							ip=deviceItem.ip;
+						}else {
+							isWifi="(USB Mode)";
+							ip="";
+						}
+						Main.appendConslone("Devices("+(i+1)+"):"+deviceItem.name+isWifi+ip, true);
+						Main.comboBox.addItem(deviceItem.name+isWifi);
+					}
+					Main.appendConslone("", false);
 				}else {
 					Main.appendConslone("No device attached.", true);
 				}
 			}
 		});
-		command.runAsync("test");
+		command.runAsync("getDevices");
 	}
 }

@@ -9,20 +9,14 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.xml.ws.ResponseWrapper;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -30,10 +24,10 @@ import javax.swing.JTextField;
 public class Main {
 
 	private JFrame frame;
-	private JComboBox comboBox;
+	public static JComboBox<String> comboBox;
 	private JLabel lblProfile;
-	private JButton btnNewProfile;
-	private JButton btnDeleteProfile;
+	private JButton btnConnect;
+	private JButton btnDisconnect;
 	private JButton btnBrowse;
 	private JButton btnWifiHost;
 	private JLabel lblPath;
@@ -87,6 +81,9 @@ public class Main {
 	public ImageIcon getImageIcon(String name){
 		return new ImageIcon(getSourceImage(name));
 	}
+	public void reFlashDevices() {
+		adbContraller.getDevices();//讀取裝置清單
+	}
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -128,15 +125,15 @@ public class Main {
 
 		lblProfile = new JLabel("Devices.");
 
-		btnNewProfile = new JButton("Connect");
-		btnNewProfile.addActionListener(new ActionListener() {
+		btnConnect = new JButton("Connect");
+		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//TODO
 			}
 		});
 
-		btnDeleteProfile = new JButton("Disconnect");
-		btnDeleteProfile.addActionListener(new ActionListener() {
+		btnDisconnect = new JButton("Disconnect");
+		btnDisconnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//TODO
 			}
@@ -147,6 +144,7 @@ public class Main {
 		pathShow.setColumns(10);
 		if (variable.adbPath.equals("")) {
 			appendConslone("You need to setup adb.exe path at first time.",false);
+			textPort.setText("5555");
 		}
 		pathShow.setText(variable.adbPath);
 
@@ -179,12 +177,7 @@ public class Main {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				variable.cleanDeviceItem();//清除裝置資料
-				adbContraller.getDevices();//讀取裝置清單
-				comboBox.removeAll();
-				for (int i = 0; i < variable.deviceItems.size(); i++) {
-					
-				}
+				reFlashDevices();
 			}
 		});
 
@@ -193,93 +186,101 @@ public class Main {
 		textPort = new JTextField();
 		textPort.setColumns(10);
 		textPort.setText(variable.port);
-		
+
 		btnSetPort = new JButton("Set");
 		btnSetPort.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				try{
+					if (Integer.valueOf(textPort.getText())>65535||Integer.valueOf(textPort.getText())<1) {
+						Integer.valueOf("Force throw Exception");
+					}
+				}catch (NumberFormatException es) {
+					appendConslone("Port is only avaliable from 1~65535", true);
+					textPort.setText("5555");
+				}
 				variable.port=textPort.getText();
 				String showPort=variable.port;
-				if (variable.port.equals("")) {
+				if (variable.port.equals("5555")) {
 					showPort="Default(5555)";
 				}
 				appendConslone("Set connect port to:"+showPort, true);
 				dataContraller.saveData(variable);
 			}
 		});
-		
+
 		btnWifiHost = new JButton("Start Wifi Hosting");
 
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
+				groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(conslone, GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(lblPath, Alignment.LEADING)
-						.addComponent(lblProfile, Alignment.LEADING)
-						.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-								.addComponent(btnWifiHost, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addContainerGap()
+						.addComponent(conslone, GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.UNRELATED)
+						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+								.addComponent(lblPath, Alignment.LEADING)
+								.addComponent(lblProfile, Alignment.LEADING)
 								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-									.addGap(2)
-									.addComponent(btnNewProfile, GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
-									.addGap(4)
-									.addComponent(btnDeleteProfile, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-									.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-										.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-											.addComponent(lblPort)
-											.addPreferredGap(ComponentPlacement.RELATED)
-											.addComponent(textPort))
-										.addComponent(comboBox, Alignment.LEADING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(pathShow, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
-										.addComponent(btnSetPort, 0, 0, Short.MAX_VALUE)
-										.addComponent(btnReflash, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(btnBrowse, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-							.addGap(6)))
-					.addContainerGap())
-		);
+										.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
+												.addComponent(btnWifiHost, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+												.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+														.addGap(2)
+														.addComponent(btnConnect, GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
+														.addGap(4)
+														.addComponent(btnDisconnect, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+												.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+														.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
+																.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+																		.addComponent(lblPort)
+																		.addPreferredGap(ComponentPlacement.RELATED)
+																		.addComponent(textPort))
+																.addComponent(comboBox, Alignment.LEADING, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+																.addComponent(pathShow, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
+														.addPreferredGap(ComponentPlacement.RELATED)
+														.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+																.addComponent(btnSetPort, 0, 0, Short.MAX_VALUE)
+																.addComponent(btnReflash, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+																.addComponent(btnBrowse, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+										.addGap(6)))
+						.addContainerGap())
+				);
 		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
+				groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(10)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(conslone, GroupLayout.PREFERRED_SIZE, 271, GroupLayout.PREFERRED_SIZE)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(lblPath)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-								.addComponent(pathShow, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnBrowse))
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGap(10)
+						.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+								.addComponent(conslone, GroupLayout.PREFERRED_SIZE, 271, GroupLayout.PREFERRED_SIZE)
 								.addGroup(groupLayout.createSequentialGroup()
-									.addGap(4)
-									.addComponent(lblProfile)
-									.addGap(1)
-									.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-								.addGroup(groupLayout.createSequentialGroup()
-									.addGap(19)
-									.addComponent(btnReflash, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)))
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(lblPort)
-								.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-									.addComponent(textPort, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addComponent(btnSetPort)))
-							.addGap(12)
-							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-								.addComponent(btnNewProfile, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnDeleteProfile, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE))
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnWifiHost)))
-					.addGap(10))
-		);
+										.addComponent(lblPath)
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+												.addComponent(pathShow, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+												.addComponent(btnBrowse))
+										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+												.addGroup(groupLayout.createSequentialGroup()
+														.addGap(4)
+														.addComponent(lblProfile)
+														.addGap(1)
+														.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+												.addGroup(groupLayout.createSequentialGroup()
+														.addGap(19)
+														.addComponent(btnReflash, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)))
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+												.addComponent(lblPort)
+												.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+														.addComponent(textPort, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+														.addComponent(btnSetPort)))
+										.addGap(12)
+										.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+												.addComponent(btnConnect, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
+												.addComponent(btnDisconnect, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(ComponentPlacement.RELATED)
+										.addComponent(btnWifiHost)))
+						.addGap(10))
+				);
 		frame.getContentPane().setLayout(groupLayout);
 
 

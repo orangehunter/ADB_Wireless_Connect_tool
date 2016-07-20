@@ -7,7 +7,7 @@ public class Variable {
 	
 	public Variable(){
 		adbPath="";
-		port="";
+		port="5555";
 		deviceItems=new ArrayList<>();
 	}
 	public void cleanDeviceItem(){

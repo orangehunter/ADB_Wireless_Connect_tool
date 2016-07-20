@@ -46,13 +46,10 @@ public class AdbContraller {
 		Main.variable.deviceItems.add(item);
 	}
 	
-	public void getDevices() {
-		ArrayList<String> returnLines;
-		returnLines=new ArrayList<>();
-		//執行 設定回傳值編碼方式
-		Command command=new Command(getFullCommandString(" devices -l"));
+	public void changeConnectType(String s){
+		Command command=new Command(getFullCommandString(s));
 		command.setCommandListener(new CommandListener() {
-
+			
 			@Override
 			public void commandStart(String arg0) {
 				// TODO Auto-generated method stub
@@ -61,7 +58,8 @@ public class AdbContraller {
 			
 			@Override
 			public void commandRunning(String arg0, String arg1, boolean arg2) {
-				returnLines.add(arg1);
+				// TODO Auto-generated method stub
+				
 			}
 			
 			@Override
@@ -73,6 +71,36 @@ public class AdbContraller {
 			@Override
 			public void commandEnd(String arg0, int arg1) {
 				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
+	public void getDevices() {
+		ArrayList<String> returnLines;
+		returnLines=new ArrayList<>();
+		//執行 設定回傳值編碼方式
+		Command command=new Command(getFullCommandString(" devices -l"));
+		command.setCommandListener(new CommandListener() {
+
+			@Override
+			public void commandStart(String arg0) {
+				
+			}
+			
+			@Override
+			public void commandRunning(String arg0, String arg1, boolean arg2) {
+				returnLines.add(arg1);
+			}
+			
+			@Override
+			public void commandException(String arg0, Exception arg1) {
+				
+			}
+			
+			@Override
+			public void commandEnd(String arg0, int arg1) {
+
 				if (returnLines.size()>2) {
 					Main.variable.cleanDeviceItem();//清除裝置資料
 					Main.comboBox.removeAllItems();

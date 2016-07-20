@@ -128,7 +128,21 @@ public class Main {
 		btnConnect = new JButton("Connect");
 		btnConnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO
+				switch (variable.deviceItems.size()) {
+				case 0:
+					appendConslone("Please connect your device to pc by usb cable.", true);
+					appendConslone("Then press refresh button.", true);
+					appendConslone("", false);
+					break;
+					
+				case 1:
+					
+					break;
+
+				default:
+					
+					break;
+				}
 			}
 		});
 

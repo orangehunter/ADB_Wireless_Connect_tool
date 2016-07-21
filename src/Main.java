@@ -136,7 +136,7 @@ public class Main {
 					break;
 					
 				case 1:
-					
+					adbContraller.getDevicesIP();
 					break;
 
 				default:
@@ -149,7 +149,7 @@ public class Main {
 		btnDisconnect = new JButton("Disconnect");
 		btnDisconnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO
+				adbContraller.changeConnectType(adbContraller.USB);
 			}
 		});
 

@@ -17,11 +17,13 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 
 public class Main {
+	private final String verison="Beta 1.0";
 
 	private JFrame frame;
 	public static JComboBox<String> comboBox;
@@ -82,8 +84,9 @@ public class Main {
 		return new ImageIcon(getSourceImage(name));
 	}
 	public void reFlashDevices() {
-		adbContraller.getDevices();//讀取裝置清單
+		adbContraller.getDevices(true);//讀取裝置清單
 	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -110,7 +113,7 @@ public class Main {
 		conslone.setEditable(false);
 		consloneText="";
 		conslone.setText(consloneText);
-		conslone.append("WellCome to Android Wireless Debug Helper 1.0"
+		conslone.append("WellCome to Android Wireless Debug Helper "+verison
 				+ "\nMade by EXL Workshop Michael Liu."
 				+ "\n"+"##### ### ### ###   "
 				+ "\n"+" #  #  #   #   #    "
@@ -149,7 +152,21 @@ public class Main {
 		btnDisconnect = new JButton("Disconnect");
 		btnDisconnect.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				switch (variable.deviceItems.size()) {
+				case 0:
+					appendConslone("Please connect your device to pc by usb cable.", true);
+					appendConslone("Then press refresh button.", true);
+					appendConslone("", false);
+					break;
+					
+				case 1:
 				adbContraller.changeConnectType(adbContraller.USB);
+					break;
+
+				default:
+					
+					break;
+				}
 			}
 		});
 

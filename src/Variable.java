@@ -16,5 +16,8 @@ public class Variable {
 		deviceItems=null;
 		deviceItems=new ArrayList<>();
 	}
+	public void getDeviceWifi_size(){
+		
+	}
 }
 
